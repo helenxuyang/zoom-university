@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "outDir": ".",
+    "outDir": "./output",
     "lib": [
       "dom",
       "dom.iterable",

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
-import { Activity, Link, LiveSession } from './Types';
+import { Activity, Link, LiveSession } from '../../types/Types';
 import Button from '@material-ui/core/Button';
 import { DialogContent, IconButton, Select } from '@material-ui/core';
 import MenuItem from '@material-ui/core/MenuItem';

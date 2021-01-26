@@ -1,55 +1,78 @@
 import admin from 'firebase-admin';
 import express from 'express';
-import bodyParser from 'body-parser';
+import path from 'path';
+import cors from 'cors';
+import type { Activity, Link, LiveSession } from 'types/Types';
 
 // Path to wherever you put your service-account.json
-const serviceAccount = require('./service_account.json');
+const serviceAccount = require('../service_account.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://zoom-university-e7cbf.firebaseapp.com',
 });
 
+const app = express();
+app.use(cors());
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+app.use(express.json());
 const db = admin.firestore();
 
-const app = express();
-const port = 8080;
-app.use(bodyParser.json());
+const activitiesCollection = db.collection('activities');
 
-app.get('/', (_, res) => res.send('Hello World!'));
+type ActivityWithIDs = Activity & {
+  id: string,
+  uid: string
+}
 
-app.get('/self-check', async (_, resp) => {
-  const data = {
-    name: 'Hello World',
-    time: admin.firestore.FieldValue.serverTimestamp(),
-  };
-  console.log('Sending doc to DB.');
-  await db.collection('test').doc('random-id').set(data);
-  console.log('Doc recorded in DB');
-  const docRef = db.collection('test').doc('random-id');
-  console.log('Trying to obtain doc in DB.');
-  const docSnapshot = await docRef.get();
-  console.log(
-    `We obtained a doc with id ${docSnapshot.id}. It's content is logged below:`
-  );
-  console.log(docSnapshot.data());
-  console.log('Now we will try to remove it.');
-  await docRef.delete();
-  console.log('The document is deleted.');
-  console.log(
-    'After all these operations, the db should be empty. We check that.'
-  );
-  db.collection('test')
-    .get()
-    .then((querySnapshot) => {
-      if (querySnapshot.docs.length === 0) {
-        console.log('We passed the check. The page in browser should say OK.');
-        resp.status(200).send('OK.');
-      } else {
-        console.log('We failed the check. Please check your setup.');
-        resp.status(500).send('Something is messed up!');
-      }
-    });
+// add an activity
+app.post('/activities', async (req, res) => {
+  const { activity, uid } = req.body;
+  const newDoc = activitiesCollection.doc();
+  await newDoc.set({
+    name: activity.name,
+    uid: uid
+  }).catch(error => console.log(error));
+
+  const linkCollection = newDoc.collection('links');
+  for (let link of activity.links) {
+    const linkDoc = linkCollection.doc();
+    await linkDoc.set(link).catch(error => console.log(error));
+  }
+
+  const sessionCollection = newDoc.collection('liveSessions');
+  for (let session of activity.liveSessions) {
+    const sessionDoc = sessionCollection.doc();
+    await sessionDoc.set(session).catch(error => console.log(error));
+  }
+
+  res.send(newDoc.id);
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+// get a user's activities
+app.get('/activities', async (req, res) => {
+  const query = await activitiesCollection.where('uid', '==', req.query.uid).get();
+  let activities: Activity[] = [];
+  for (let docSnapshot of query.docs) {
+    const name = docSnapshot.data().name;
+
+    const sessionCollection = db.collection('activities/' + docSnapshot.id + '/liveSessions');
+    const sessionDocs = await sessionCollection.get();
+    const liveSessions = sessionDocs.docs.map((sessionSnapshot) => sessionSnapshot.data() as LiveSession);
+
+    const linkCollection = db.collection('activities/' + docSnapshot.id + '/links');
+    const linkDocs = await linkCollection.get();
+    const links = linkDocs.docs.map((linkSnapshot) => linkSnapshot.data() as Link);
+
+    const activity: Activity = {
+      name: name,
+      liveSessions: liveSessions,
+      links: links
+    }
+    activities.push(activity);
+  }
+  res.send(activities);
+});
+
+
+app.listen(8080, () => console.log(`Server started!`));

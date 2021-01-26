@@ -1,7 +1,7 @@
 import StyledButton from './StyledButton';
 import Card from '@material-ui/core/Card';
 import React from 'react';
-import { Activity, LiveSession } from './Types';
+import { Activity, LiveSession } from '../../types/Types';
 import zoomLogo from './images/zoom-logo.png';
 import { DateTime } from 'luxon';
 

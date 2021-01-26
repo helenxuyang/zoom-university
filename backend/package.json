@@ -1,15 +1,19 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./output/index.js",
+  "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node index.js"
+    "start": "node ./output/index.js"
   },
   "dependencies": {
+    "@types/cors": "^2.8.9",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
-    "firebase-admin": "^9.2.0"
+    "firebase-admin": "^9.2.0",
+    "types": "1.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.8",
