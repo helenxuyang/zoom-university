@@ -158,7 +158,7 @@ const CreateActivity = ({ isOpen, close, addActivity }: CreateActivityProps) => 
                 variant="outlined"
                 value={sessionName}
                 onChange={(e) => setSessionName(e.target.value)}
-                placeholder="e.g. Lecture, discussion, lab"
+                placeholder="e.g. Lecture"
               />
             </TableCell>
             <TableCell>
@@ -198,7 +198,7 @@ const CreateActivity = ({ isOpen, close, addActivity }: CreateActivityProps) => 
                 variant="outlined"
                 value={url}
                 onChange={(e) => setURL(e.target.value)}
-                placeholder="e.g. https://zoom.cornell.us/12345"
+                placeholder="e.g. https://cornell.zoom.us/j/123?pwd=123"
               />
             </TableCell>
             <TableCell>
@@ -245,7 +245,7 @@ const CreateActivity = ({ isOpen, close, addActivity }: CreateActivityProps) => 
             variant="outlined"
             value={linkName}
             onChange={(e) => setLinkName(e.target.value)}
-            placeholder="e.g. Canvas discussions page"
+            placeholder="e.g. Canvas discussions"
           />
         </TableCell>
         <TableCell>
@@ -253,7 +253,7 @@ const CreateActivity = ({ isOpen, close, addActivity }: CreateActivityProps) => 
             variant="outlined"
             value={linkURL}
             onChange={(e) => setLinkURL(e.target.value)}
-            placeholder="e.g. https://www.canvas.infrastructure.com"
+            placeholder="e.g. https://canvas.cornell.edu/"
           />
         </TableCell>
         <TableCell>

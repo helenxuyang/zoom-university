@@ -49,7 +49,7 @@ const ActivityCard = (activity: Activity) => {
 
   const nextSession = liveSessions.length > 0 ? getNextSession(now) : null;
 
-  return <Card style={{ padding: 16 }}>
+  return <Card style={{ padding: 16, textAlign: "center" }}>
     <h1>{name}</h1>
     {nextSession && (haveSessionToday ?
       <p>{`Meets today at ${nextSession.startTime.toLocaleString(DateTime.TIME_SIMPLE)}`}</p> :

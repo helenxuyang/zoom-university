@@ -9,7 +9,7 @@ type CardGridProps = {
 
 const CardGrid = ({ activities }: CardGridProps) => {
 
-  return <Grid container spacing={2}>
+  return <Grid container spacing={2} style={{ marginTop: 16, marginBottom: 16 }}>
     {activities.map((course, index) =>
       <Grid key={index} item lg={3} md={4} sm={6} xs={12}>
         <ActivityCard {...course} />

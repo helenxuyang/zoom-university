@@ -76,7 +76,7 @@ const Authenticated = () => {
   }
   return (
     <MuiThemeProvider theme={theme}>
-      <div style={{ margin: 36, textAlign: "center" }}>
+      <div style={{ margin: 36 }}>
         {user && (
           <div>
             <Button
@@ -85,7 +85,7 @@ const Authenticated = () => {
               onClick={() => setCreateDialogOpen(true)}
             >
               Create card
-              </Button>
+            </Button>
             <CreateActivity
               isOpen={createDialogOpen}
               close={() => setCreateDialogOpen(false)}
