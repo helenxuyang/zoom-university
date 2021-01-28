@@ -1,6 +1,9 @@
 {
   "name": "zoom-university",
   "private": true,
+  "scripts": {
+    "heroku-postbuild": "yarn workspace backend run build && yarn workspace frontend run build"
+  },
   "workspaces": [
     "backend",
     "frontend",
@@ -10,6 +13,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "heroku": "^7.47.11",
     "react-firebaseui": "^4.1.0"
   }
 }

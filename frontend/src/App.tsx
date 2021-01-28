@@ -67,14 +67,37 @@ const Authenticated = () => {
     }
   }
 
+  const signOut = () => {
+    firebase.auth().signOut().then(() => {
+      setUser(null);
+    }).catch((error) => {
+      console.log("Error when signing out: " + error);
+    });
+  }
   return (
     <MuiThemeProvider theme={theme}>
       <div style={{ margin: 36, textAlign: "center" }}>
         {user && (
           <div>
-            <Button onClick={() => setCreateDialogOpen(true)}>Create card</Button>
-            <CreateActivity isOpen={createDialogOpen} close={() => setCreateDialogOpen(false)} addActivity={addActivity} />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setCreateDialogOpen(true)}
+            >
+              Create card
+              </Button>
+            <CreateActivity
+              isOpen={createDialogOpen}
+              close={() => setCreateDialogOpen(false)}
+              addActivity={addActivity}
+            />
             <CardGrid activities={activities} />
+            <Button
+              variant="contained"
+              onClick={signOut}
+            >
+              Sign out
+              </Button>
           </div>
         )}
         {!user && (

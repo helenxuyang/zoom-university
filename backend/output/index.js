@@ -69,4 +69,4 @@ app.get('/activities', (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     res.send(activities);
 }));
-app.listen(8080, () => console.log(`Server started!`));
+app.listen(process.env.PORT || 8080, () => console.log(`Server started!`));
