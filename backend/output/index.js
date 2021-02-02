@@ -12,19 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require('dotenv').config();
 const firebase_admin_1 = __importDefault(require("firebase-admin"));
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const cors_1 = __importDefault(require("cors"));
-// Path to wherever you put your service-account.json
-const serviceAccount = require('../service_account.json');
 firebase_admin_1.default.initializeApp({
-    credential: firebase_admin_1.default.credential.cert(serviceAccount),
+    credential: firebase_admin_1.default.credential.cert(JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG, 'base64').toString('ascii'))),
     databaseURL: 'https://zoom-university-e7cbf.firebaseapp.com',
 });
 const app = express_1.default();
 app.use(cors_1.default());
-app.use(express_1.default.static(path_1.default.join(__dirname, '../frontend/build')));
+app.use(express_1.default.static(path_1.default.join(__dirname, '../../frontend/build')));
 app.use(express_1.default.json());
 const db = firebase_admin_1.default.firestore();
 const activitiesCollection = db.collection('activities');

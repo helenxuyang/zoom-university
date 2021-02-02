@@ -2,7 +2,7 @@
   "name": "zoom-university",
   "private": true,
   "scripts": {
-    "heroku-postbuild": "yarn workspace backend run build && yarn workspace frontend run build"
+    "heroku-postbuild": "yarn workspaces run build"
   },
   "workspaces": [
     "backend",

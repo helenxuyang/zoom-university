@@ -1,5 +1,8 @@
 {
   "name": "types",
   "version": "1.0.0",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  }
 }

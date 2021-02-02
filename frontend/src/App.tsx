@@ -19,7 +19,9 @@ const firebaseConfig = {
   measurementId: "G-64ZHVN2S3L"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 const Authenticated = () => {
   const [user, setUser] = useState<firebase.User | null>(null);
@@ -101,7 +103,7 @@ const Authenticated = () => {
           </div>
         )}
         {!user && (
-          <div>
+          <div style={{ textAlign: "center" }}>
             <h1>Zoom University</h1>
             <p>A simple link organizer for the remote era</p>
             <FirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />

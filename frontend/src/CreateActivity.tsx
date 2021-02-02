@@ -198,6 +198,11 @@ const CreateActivity = ({ isOpen, close, addActivity }: CreateActivityProps) => 
                 variant="outlined"
                 value={url}
                 onChange={(e) => setURL(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addSession();
+                  }
+                }}
                 placeholder="e.g. https://cornell.zoom.us/j/123?pwd=123"
               />
             </TableCell>

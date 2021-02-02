@@ -1,20 +1,18 @@
+require('dotenv').config();
 import admin from 'firebase-admin';
 import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import type { Activity, Link, LiveSession } from 'types/Types';
 
-// Path to wherever you put your service-account.json
-const serviceAccount = require('../service_account.json');
-
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG as string, 'base64').toString('ascii'))),
   databaseURL: 'https://zoom-university-e7cbf.firebaseapp.com',
 });
 
 const app = express();
 app.use(cors());
-app.use(express.static(path.join(__dirname, '../frontend/build')));
+app.use(express.static(path.join(__dirname, '../../frontend/build')));
 app.use(express.json());
 const db = admin.firestore();
 
