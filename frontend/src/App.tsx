@@ -5,7 +5,7 @@ import FirebaseAuth from 'react-firebaseui/FirebaseAuth';
 import CardGrid from './CardGrid';
 import { Activity } from '../../types/Types';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core';
-import CreateActivity from './CreateActivity';
+import ActivityDialog from './ActivityDialog';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
 
@@ -46,36 +46,79 @@ const Authenticated = () => {
 
   const onAuthStateChange = () => {
     return firebase.auth().onAuthStateChanged(async (user) => {
-      setUser(user);
-      console.log("set user");
-      axios.get<Activity[]>(`/activities?uid=${user?.uid}`)
-        .catch((error) => console.log("Error when getting user's activities: " + error))
-        .then((res) => {
-          if (res) {
-            setActivities(res.data);
-          }
-        });
+      if (user) {
+        setUser(user);
+
+        const fetchActivites = async () => {
+          axios.get<Activity[]>(`/activities/${user.uid}`)
+            .catch((error) => console.log("Error when getting user's activities: " + error))
+            .then((res) => {
+              if (res) {
+                setActivities(res.data);
+              }
+            });
+        }
+
+        const userExists = await axios.get<boolean>(`users/${user.uid}`);
+        if (userExists) {
+          await fetchActivites();
+        }
+        else {
+          axios.post(`users/${user.uid}`)
+            .catch((error) => console.log("Error when creating user: " + error))
+            .then((res) => {
+              fetchActivites();
+            })
+        }
+      }
     });
   }
 
   useEffect(() => onAuthStateChange(), []);
 
   const addActivity = async (activity: Activity) => {
-    const uid = user?.uid;
-    if (uid) {
-      axios.post('/activities', { activity, uid })
-        .catch(error => console.log('Error when adding activity: ' + error))
-        .then((res) => setActivities([...activities, activity]));
-    }
+    axios.post<string>(`/activities/${user?.uid}`, activity)
+      .catch(error => console.log('Error when adding activity: ' + error))
+      .then((res) => {
+        if (res) {
+          const newID: string = res.data;
+          activity.docID = newID;
+          setActivities([...activities, activity]);
+        }
+      });
+  }
+
+  const updateActivity = async (originalActivity: Activity, newActivity: Activity) => {
+    axios.put<string>(`/activities/${user?.uid}/${originalActivity.docID}`, newActivity)
+      .catch(error => console.log('Error when updating activity: ' + error))
+      .then((res) => {
+        const activitiesCopy = [...activities];
+        const index = activitiesCopy.indexOf(originalActivity);
+        activitiesCopy[index] = newActivity;
+        setActivities(activitiesCopy);
+      });
+  }
+
+  const deleteActivity = async (activity: Activity) => {
+    axios.delete(`/activities/${user?.uid}/${activity.docID}`)
+      .catch(error => console.log('Error when deleting activity: ' + error))
+      .then((res) => {
+        const activitiesCopy = [...activities];
+        const index = activitiesCopy.indexOf(activity);
+        activitiesCopy.splice(index, 1);
+        setActivities(activitiesCopy);
+      });
   }
 
   const signOut = () => {
     firebase.auth().signOut().then(() => {
       setUser(null);
+      setActivities([]);
     }).catch((error) => {
       console.log("Error when signing out: " + error);
     });
   }
+
   return (
     <MuiThemeProvider theme={theme}>
       <div style={{ margin: 36 }}>
@@ -88,12 +131,16 @@ const Authenticated = () => {
             >
               Create card
             </Button>
-            <CreateActivity
+            <ActivityDialog
+              creating={true}
               isOpen={createDialogOpen}
               close={() => setCreateDialogOpen(false)}
               addActivity={addActivity}
             />
-            <CardGrid activities={activities} />
+            <CardGrid
+              activities={activities}
+              deleteActivity={deleteActivity}
+              updateActivity={updateActivity} />
             <Button
               variant="contained"
               onClick={signOut}

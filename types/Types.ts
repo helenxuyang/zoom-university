@@ -19,6 +19,7 @@ export type Contact = {
 }
 
 export type Activity = {
+  docID: string,
   name: string,
   liveSessions: LiveSession[]
   links: Link[]

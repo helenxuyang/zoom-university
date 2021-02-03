@@ -16,59 +16,74 @@ app.use(express.static(path.join(__dirname, '../../frontend/build')));
 app.use(express.json());
 const db = admin.firestore();
 
-const activitiesCollection = db.collection('activities');
+const usersCollection = db.collection('users');
 
 type ActivityWithIDs = Activity & {
   id: string,
   uid: string
 }
 
+// check if user exists
+app.get('/users/:uid', async (req, res) => {
+  const uid = req.params.uid;
+  const userDoc = await usersCollection.doc(uid).get();
+  res.send(userDoc.exists);
+})
+
+// add a user
+app.post('/users/:uid', async (req, res) => {
+  const uid = req.params.uid;
+  const newDoc = usersCollection.doc(uid);
+  await newDoc.set({}).catch(error => console.log(error));
+  res.send(uid);
+})
+
 // add an activity
-app.post('/activities', async (req, res) => {
-  const { activity, uid } = req.body;
+app.post('/activities/:uid', async (req, res) => {
+  const activity = req.body;
+  const uid = req.params.uid;
+  const activitiesCollection = db.collection('users/' + uid + '/activities');
   const newDoc = activitiesCollection.doc();
-  await newDoc.set({
-    name: activity.name,
-    uid: uid
-  }).catch(error => console.log(error));
 
-  const linkCollection = newDoc.collection('links');
-  for (let link of activity.links) {
-    const linkDoc = linkCollection.doc();
-    await linkDoc.set(link).catch(error => console.log(error));
-  }
-
-  const sessionCollection = newDoc.collection('liveSessions');
-  for (let session of activity.liveSessions) {
-    const sessionDoc = sessionCollection.doc();
-    await sessionDoc.set(session).catch(error => console.log(error));
-  }
-
+  const { docID, ...newActivity } = activity;
+  await newDoc.set({ ...newActivity }).catch(error => console.log(error));
   res.send(newDoc.id);
 });
 
+// delete an activity
+app.delete('/activities/:uid/:id', async (req, res) => {
+  const uid = req.params.uid;
+  const activitiesCollection = db.collection('users/' + uid + '/activities');
+
+  const id = req.params.id;
+  await activitiesCollection.doc(id as string).delete().catch(error => console.log(error));
+  res.send(id);
+});
+
+// update an activity
+app.put('/activities/:uid/:id', async (req, res) => {
+  const uid = req.params.uid;
+  const activitiesCollection = db.collection('users/' + uid + '/activities');
+
+  const id = req.params.id;
+  const { docID, ...activity } = req.body;
+  await activitiesCollection.doc(id).update(activity).catch(error => console.log(error));
+  res.send(id);
+});
+
 // get a user's activities
-app.get('/activities', async (req, res) => {
-  const query = await activitiesCollection.where('uid', '==', req.query.uid).get();
-  let activities: Activity[] = [];
-  for (let docSnapshot of query.docs) {
-    const name = docSnapshot.data().name;
-
-    const sessionCollection = db.collection('activities/' + docSnapshot.id + '/liveSessions');
-    const sessionDocs = await sessionCollection.get();
-    const liveSessions = sessionDocs.docs.map((sessionSnapshot) => sessionSnapshot.data() as LiveSession);
-
-    const linkCollection = db.collection('activities/' + docSnapshot.id + '/links');
-    const linkDocs = await linkCollection.get();
-    const links = linkDocs.docs.map((linkSnapshot) => linkSnapshot.data() as Link);
-
-    const activity: Activity = {
-      name: name,
-      liveSessions: liveSessions,
-      links: links
+app.get('/activities/:uid', async (req, res) => {
+  const uid = req.params.uid;
+  const query = await db.collection('users/' + uid + '/activities').get();
+  let activities = query.docs.map((doc) => {
+    const data = doc.data();
+    return {
+      name: data.name,
+      liveSessions: data.liveSessions,
+      links: data.links,
+      docID: doc.id
     }
-    activities.push(activity);
-  }
+  });
   res.send(activities);
 });
 

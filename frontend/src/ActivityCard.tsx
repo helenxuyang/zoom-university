@@ -1,9 +1,13 @@
 import StyledButton from './StyledButton';
 import Card from '@material-ui/core/Card';
-import React from 'react';
+import CardActions from '@material-ui/core/CardActions';
+import React, { useState } from 'react';
 import { Activity, LiveSession } from '../../types/Types';
 import zoomLogo from './images/zoom-logo.png';
 import { DateTime } from 'luxon';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
 
 type LiveSessionInstance = {
   session: LiveSession,
@@ -11,7 +15,13 @@ type LiveSessionInstance = {
   endTime: DateTime
 }
 
-const ActivityCard = (activity: Activity) => {
+type ActivityCardProps = {
+  activity: Activity,
+  startDelete: () => void,
+  startEdit: () => void
+}
+
+const ActivityCard = ({ activity, startDelete, startEdit }: ActivityCardProps) => {
   const { name, liveSessions, links: otherLinks } = activity;
   const now = DateTime.local();
   const weekdays = liveSessions.map((session) => session.weekday);
@@ -49,35 +59,48 @@ const ActivityCard = (activity: Activity) => {
 
   const nextSession = liveSessions.length > 0 ? getNextSession(now) : null;
 
-  return <Card style={{ padding: 16, textAlign: "center" }}>
-    <h1>{name}</h1>
-    {nextSession && (haveSessionToday ?
-      <p>{`Meets today at ${nextSession.startTime.toLocaleString(DateTime.TIME_SIMPLE)}`}</p> :
-      <p>{`Next meeting on ${nextSession.startTime.toLocaleString({ weekday: 'long' })}`}</p>)
-    }
+  return <div>
+    <Card style={{ textAlign: "center" }}>
+      <h1 style={{ marginTop: 16, marginBottom: 8 }}>{name}</h1>
 
-    {nextSession && haveSessionToday &&
-      <StyledButton
-        variant="outlined"
-        color="primary"
-        target="_blank"
-        href={nextSession.session.url}>
-        <img src={zoomLogo} alt={"zoom logo"} width={24} style={{ marginRight: 8 }} />
+      {nextSession && (haveSessionToday ?
+        <p>{`${nextSession.session.name} today at ${nextSession.startTime.toLocaleString(DateTime.TIME_SIMPLE)}`}</p> :
+        <p>{`Next session: ${nextSession.session.name} on ${nextSession.startTime.toLocaleString({ weekday: 'long' })}`}</p>)
+      }
+
+      {nextSession &&
+        <StyledButton
+          variant="outlined"
+          color="primary"
+          target="_blank"
+          href={nextSession.session.url}>
+          <img src={zoomLogo} alt={"zoom logo"} width={24} style={{ marginRight: 8 }} />
         Join on Zoom
       </StyledButton>
-    }
-    <br />
-    {otherLinks.map((link, index) =>
-      <StyledButton
-        key={index}
-        variant="outlined"
-        color="secondary"
-        target="_blank"
-        href={link.url}>
-        {link.name}
-      </StyledButton>)
-    }
-  </Card>
+      }
+      <br />
+      {otherLinks.length > 0 && <h2>Links</h2>}
+      {otherLinks.map((link, index) =>
+        <StyledButton
+          key={index}
+          variant="outlined"
+          color="secondary"
+          target="_blank"
+          href={link.url}>
+          {link.name}
+        </StyledButton>)
+      }
+      <br />
+      <CardActions disableSpacing>
+        <IconButton onClick={e => { startEdit(); }}>
+          <EditIcon />
+        </IconButton >
+        <IconButton onClick={e => { startDelete(); }}>
+          <DeleteIcon />
+        </IconButton>
+      </CardActions>
+    </Card>
+  </div>
 
 }
 
