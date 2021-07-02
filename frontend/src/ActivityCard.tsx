@@ -1,13 +1,14 @@
+import React, { useState } from 'react';
 import StyledButton from './StyledButton';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
-import React, { useState } from 'react';
 import { Activity, LiveSession } from '../../types/Types';
 import zoomLogo from './images/zoom-logo.png';
 import { DateTime } from 'luxon';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
+import TextField from '@material-ui/core/TextField';
 
 type LiveSessionInstance = {
   session: LiveSession,
@@ -25,6 +26,7 @@ const ActivityCard = ({ activity, startDelete, startEdit }: ActivityCardProps) =
   const { name, liveSessions, links: otherLinks } = activity;
   const now = DateTime.local();
   const weekdays = liveSessions.map((session) => session.weekday);
+  const [newTask, setNewTask] = useState<String>('');
 
   const nextSessionOnWeekday = (weekday: number): LiveSession => {
     return liveSessions.filter((session) => session.weekday === weekday)
@@ -90,6 +92,13 @@ const ActivityCard = ({ activity, startDelete, startEdit }: ActivityCardProps) =
           {link.name}
         </StyledButton>)
       }
+      <br />
+      <h2>To Do</h2>
+      <TextField
+        variant="outlined"
+        value={newTask}
+        onChange={(e) => setNewTask(e.target.value)}
+      />
       <br />
       <CardActions disableSpacing>
         <IconButton onClick={e => { startEdit(); }}>

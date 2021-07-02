@@ -8,6 +8,7 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core';
 import ActivityDialog from './ActivityDialog';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import QuickBar from './QuickBar';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAGNR6HoL7JASA9Vd0oJkcVyepO3W17g0g",
@@ -131,6 +132,7 @@ const Authenticated = () => {
             >
               Create card
             </Button>
+            <QuickBar />
             <ActivityDialog
               creating={true}
               isOpen={createDialogOpen}
